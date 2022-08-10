@@ -163,7 +163,7 @@ def game_core(connection, username):
         validnums = [1, 2, 3]
         gametxt= '''Choose your move.\n1. ROCK\n2. PAPER \n3. SCISSORS\n>> '''
         rounds = 0
-        while rounds < tscore:
+        while userscore < tscore and botscore < tscore:
             while True:
                 try:
                     usermove = int(input(gametxt))
@@ -213,10 +213,7 @@ def game_core(connection, username):
             rounds += 1
         break
 
-    if userscore == botscore:
-        print(f"You scored {userscore} and your computer scored {botscore} wins.\nIt's a Tie and Ties won't be counted.")
-        time.sleep(5)
-    elif userscore > botscore:
+    if userscore > botscore:
         win(connection, username)
         print(f'''You scored {userscore} and your computer scored {botscore} wins.
         You have WON the game.
@@ -224,7 +221,8 @@ def game_core(connection, username):
         time.sleep(5)
     else:
         lost(connection, username)
-        print(f'''Your computer scored {botscore} and You scored {userscore} wins.\nbetter luck next time.''')
+        print(f'''Your computer scored {botscore} and You scored {userscore} wins.
+        Better luck next time.''')
         time.sleep(5)
 
 
