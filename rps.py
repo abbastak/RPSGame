@@ -25,8 +25,8 @@ def createDBtable(connection):
         sqlCommand = '''CREATE TABLE "Users" (
                           "username"  TEXT NOT NULL UNIQUE,
                           "password"  TEXT NOT NULL,
-                          "win"  INTEGER,
-                          "lose"  INTEGER,
+                          "win"  INTEGER NOT NULL,
+                          "lose"  INTEGER NOT NULL,
                           PRIMARY KEY("username")
                         );'''
         c.execute(sqlCommand)
@@ -61,7 +61,7 @@ def check_existence(connection, username):
 def signup(connection, username, password):
     try:
         cur = connection.cursor()
-        cur.execute("INSERT INTO Users(username, password) VALUES (?,?)", (username, password))
+        cur.execute("INSERT INTO Users(username, password, win, lose) VALUES (?,?,?,?)", (username, password, 0, 0))
         connection.commit()
     except Exception as err:
         print("Some thing went wrong with your signing up", err)
@@ -82,9 +82,6 @@ def stats(connection, username):
     cur = connection.cursor()
     cur.execute("SELECT username, win, lose FROM Users WHERE lower(username) = (?)", (username.lower(),))
     data = list(cur.fetchone())
-    for i in range(len(data)):
-        if data[i] is None:
-            data[i] = 0
     try:
         rate = int(data[1]/(data[1]+data[2])*100)
     except ZeroDivisionError:
@@ -96,11 +93,36 @@ def stats(connection, username):
     return stat
 
 
+def reset_stats(connection, username):
+    cur = connection.cursor()
+    cur.execute(''' UPDATE Users SET (win, lose) = (?,?) WHERE lower(username) = (?)''', (0, 0, username.lower()))
+    connection.commit()
+
+
+def win(connection, username):
+    cur = connection.cursor()
+    cur.execute("SELECT username, win FROM Users WHERE lower(username) = (?)", (username.lower(),))
+    data = list(cur.fetchone())
+    nwin = data[1] + 1
+    cur.execute(''' UPDATE Users SET win = ? WHERE lower(username) = (?)''', (nwin, username.lower()))
+    connection.commit()
+
+
+def lost(connection, username):
+    cur = connection.cursor()
+    cur.execute("SELECT username, lose FROM Users WHERE lower(username) = (?)", (username.lower(),))
+    data = list(cur.fetchone())
+    nlose = data[1] + 1
+    cur.execute(''' UPDATE Users SET lose = ? WHERE lower(username) = (?)''', (nlose, username.lower()))
+    connection.commit()
+
+
 def game_menu(connection, username):
     while True:
         time.sleep(2)
         clear_screen()
-        menuText = '''THIS IS RPS GAME.\nChoose as you wish:\n1. Start a New Game.\n2. Show my stats.\n3. Logout.\n> '''
+        menuText = '''THIS IS RPS GAME.\nChoose as you wish:\n1. Start a New Game.\n2. Show my stats.\n3. Logout.
+9. Clear my Stats.\n> '''
         inp = input(menuText)
         match inp:
             case '1':
@@ -113,32 +135,15 @@ def game_menu(connection, username):
             case '3':
                 print("logging out...")
                 break
+            case '9':
+                ans = input("Are you sure? (y/N): ")
+                if ans.lower() == 'y':
+                    reset_stats(connection, username)
+                else:
+                    print("It's Done. \nBetter luck this time...")
+                    continue
             case _:
-                print("Valid inputs are 1, 2, 3.")
-
-
-def win(connection, username):
-    cur = connection.cursor()
-    cur.execute("SELECT username, win FROM Users WHERE lower(username) = (?)", (username.lower(),))
-    data = list(cur.fetchone())
-    for i in range(len(data)):
-        if data[i] is None:
-            data[i] = 0
-    nwin = data[1] + 1
-    cur.execute(''' UPDATE Users SET win = ? WHERE lower(username) = (?)''', (nwin, username.lower()))
-    connection.commit()
-
-
-def lost(connection, username):
-    cur = connection.cursor()
-    cur.execute("SELECT username, lose FROM Users WHERE lower(username) = (?)", (username.lower(),))
-    data = list(cur.fetchone())
-    for i in range(len(data)):
-        if data[i] is None:
-            data[i] = 0
-    nlose = data[1] + 1
-    cur.execute(''' UPDATE Users SET lose = ? WHERE lower(username) = (?)''', (nlose, username.lower()))
-    connection.commit()
+                print("Valid inputs are 1, 2, 3, 9.")
 
 
 def game_core(connection, username):
@@ -147,15 +152,19 @@ def game_core(connection, username):
 
     while True:
         tscore = 5
-        print("Set the target score. (Min is 3 and max is 10. 5 is recommended.) ")
+        print("Set the target score. (Min is 3 and max is 10. Default is 5.) ")
         try:
-            tscore = int(input(": "))
-            if tscore > 10:
-                print("Maximum is 10.")
-                continue
-            elif tscore < 3:
-                print("Min is 3")
-                continue
+            temp = input(": ")
+            if temp == '':
+                pass
+            else:
+                tscore = int(temp)
+                if tscore > 10:
+                    print("Maximum is 10.")
+                    continue
+                elif tscore < 3:
+                    print("Min is 3")
+                    continue
         except:
             print("Please enter a number.")
 
@@ -218,12 +227,12 @@ def game_core(connection, username):
         print(f'''You scored {userscore} and your computer scored {botscore} wins.
         You have WON the game.
         Congratulations.''')
-        time.sleep(5)
+        time.sleep(4)
     else:
         lost(connection, username)
         print(f'''Your computer scored {botscore} and You scored {userscore} wins.
         Better luck next time.''')
-        time.sleep(5)
+        time.sleep(4)
 
 
 while True:
