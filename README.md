@@ -2,9 +2,10 @@
 Simple python Rock Paper Scissors cli game.
 
 ## Requirements
-- just Python 3.10 or above
+- ~~just Python 3.10 or above~~
+- Python 3.6 or above.
 
-there is no need to install any package.
+There is no need to install any package.
 
 ## Usage
 ### Linux: 
@@ -36,8 +37,9 @@ Then you will need to login with those information. Enter 1 then login.
 THIS IS RPS GAME.
 Choose as you wish:
 1. Start a New Game.
-2. Show my stats.
+2. Show my Stats.
 3. Logout.
+9. Clear my Stats.
 >
 ```
 
