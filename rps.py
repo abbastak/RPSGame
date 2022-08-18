@@ -124,26 +124,25 @@ def game_menu(connection, username):
         menuText = '''THIS IS RPS GAME.\nChoose as you wish:\n1. Start a New Game.\n2. Show my stats.\n3. Logout.
 9. Clear my Stats.\n> '''
         inp = input(menuText)
-        match inp:
-            case '1':
-                game_core(connection, username)
-            case '2':
-                stat = stats(connection, username)
-                print(stat)
-                print("Wait for this to be gone...")
-                time.sleep(3)
-            case '3':
-                print("logging out...")
-                break
-            case '9':
-                ans = input("Are you sure? (y/N): ")
-                if ans.lower() == 'y':
-                    reset_stats(connection, username)
-                else:
-                    print("It's Done. \nBetter luck this time...")
-                    continue
-            case _:
-                print("Valid inputs are 1, 2, 3, 9.")
+        if inp == 1:
+            game_core(connection, username)
+        elif inp == '2':
+            stat = stats(connection, username)
+            print(stat)
+            print("Wait for this to be gone...")
+            time.sleep(3)
+        elif inp == '3':
+            print("logging out...")
+            break
+        elif inp == '9':
+            ans = input("Are you sure? (y/N): ")
+            if ans.lower() == 'y':
+                reset_stats(connection, username)
+            else:
+                print("It's Done.\nBetter luck this time...")
+                continue
+        else:
+            print("Valid inputs are 1, 2, 3, 9.")
 
 
 def game_core(connection, username):
