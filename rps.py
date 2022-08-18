@@ -124,7 +124,7 @@ def game_menu(connection, username):
         menuText = '''THIS IS RPS GAME.\nChoose as you wish:\n1. Start a New Game.\n2. Show my stats.\n3. Logout.
 9. Clear my Stats.\n> '''
         inp = input(menuText)
-        if inp == 1:
+        if inp == '1':
             game_core(connection, username)
         elif inp == '2':
             stat = stats(connection, username)
